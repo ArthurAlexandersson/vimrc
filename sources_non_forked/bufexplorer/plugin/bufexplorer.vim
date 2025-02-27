@@ -1,5 +1,5 @@
 "============================================================================
-"    Copyright: Copyright (c) 2001-2024, Jeff Lanzarotta
+"    Copyright: Copyright (c) 2001-2025, Jeff Lanzarotta
 "               All rights reserved.
 "
 "               Redistribution and use in source and binary forms, with or
@@ -36,7 +36,7 @@
 " Name Of File: bufexplorer.vim
 "  Description: Buffer Explorer Vim Plugin
 "   Maintainer: Jeff Lanzarotta (my name at gmail dot com)
-" Last Changed: Tuesday, 13 August 2024
+" Last Changed: Monday, 17 February 2025
 "      Version: See g:bufexplorer_version for version number.
 "        Usage: This file should reside in the plugin directory and be
 "               automatically sourced.
@@ -74,7 +74,7 @@ endif
 "1}}}
 
 " Version number
-let g:bufexplorer_version = "7.4.27"
+let g:bufexplorer_version = "7.6.0"
 
 " Plugin Code {{{1
 " Check for Vim version {{{2
@@ -90,6 +90,7 @@ if v:version < 700
     endif
     finish
 endif
+
 " Check to see if the version of Vim has the correct patch applied, if not, do
 " not used <nowait>.
 if v:version > 703 || v:version == 703 && has('patch1261') && has('patch1264')
@@ -133,7 +134,7 @@ let s:running = 0
 let s:sort_by = ["number", "name", "fullpath", "mru", "extension"]
 let s:splitMode = ""
 let s:didSplit = 0
-let s:types = {"fullname": ':p', "path": ':p:h', "relativename": ':~:.', "relativepath": ':~:.:h', "shortname": ':t'}
+let s:types = ["fullname", "homename", "path", "relativename", "relativepath", "shortname"]
 
 " Setup the autocommands that handle the MRUList and other stuff. {{{2
 autocmd VimEnter * call s:Setup()
@@ -185,10 +186,9 @@ function! s:CatalogBuffers()
 endfunction
 
 " AssociatedTab {{{2
-" Return the number of the tab associated with the specified buffer.
-" If the buffer is associated with more than one tab, the first one
-" found is returned. If the buffer is not associated with any tabs,
-" -1 is returned.
+" Return the number of the tab associated with the specified buffer. If the
+" buffer is associated with more than one tab, the first one found is
+" returned. If the buffer is not associated with any tabs, -1 is returned.
 function! s:AssociatedTab(bufnr)
     for tab in range(1, tabpagenr('$'))
         let list = gettabvar(tab, 'bufexp_buf_list', [])
@@ -202,8 +202,8 @@ function! s:AssociatedTab(bufnr)
 endfunction
 
 " RemoveBufFromOtherTabs {{{2
-" Remove the specified buffer from the buffer lists of all tabs
-" except the current tab.
+" Remove the specified buffer from the buffer lists of all tabs except the
+" current tab.
 function! s:RemoveBufFromOtherTabs(bufnr)
     for tab in range(1, tabpagenr('$'))
         if tab == tabpagenr()
@@ -222,8 +222,8 @@ function! s:RemoveBufFromOtherTabs(bufnr)
 endfunction
 
 " AddBufToCurrentTab {{{2
-" Add the specified buffer to the list of buffers associated
-" with the current tab
+" Add the specified buffer to the list of buffers associated with the current
+" tab.
 function! s:AddBufToCurrentTab(bufnr)
     if index(t:bufexp_buf_list, a:bufnr) == -1
         call add(t:bufexp_buf_list, a:bufnr)
@@ -231,12 +231,10 @@ function! s:AddBufToCurrentTab(bufnr)
 endfunction
 
 " IsInCurrentTab {{{2
-" Returns whether the specified buffer is associated
-" with the current tab
+" Returns whether the specified buffer is associated with the current tab.
 function! s:IsInCurrentTab(bufnr)
-    " It shouldn't happen that the list of buffers is
-    " not defined but if it does, play it safe and
-    " include the buffer
+    " It shouldn't happen that the list of buffers is not defined but if it
+    " does, play it safe and include the buffer.
     if !exists('t:bufexp_buf_list')
         return 1
     endif
@@ -245,27 +243,25 @@ function! s:IsInCurrentTab(bufnr)
 endfunction
 
 " UpdateTabBufData {{{2
-" Update the tab buffer data for the specified buffer
+" Update the tab buffer data for the specified buffer.
 "
-" The current tab's list is updated. If a buffer is only
-" allowed to be associated with one tab, it is removed
-" from the lists of any other tabs with which it may have
-" been associated.
+" The current tab's list is updated. If a buffer is only allowed to be
+" associated with one tab, it is removed  from the lists of any other tabs
+" with which it may have been associated.
 "
-" The associations between tabs and buffers are maintained
-" in separate lists for each tab, which are stored in tab-
-" specific variables 't:bufexp_buf_list'.
+" The associations between tabs and buffers are maintained in separate lists
+" for each tab, which are stored in tab-specific variables
+" 't:bufexp_buf_list'.
 function! s:UpdateTabBufData(bufnr)
-    " The first time we add a tab, Vim uses the current buffer
-    " as its starting page even though we are about to edit a
-    " new page, and another BufEnter for the new page is triggered
-    " later. Use this first BufEnter to initialize the list of
-    " buffers, but don't add the buffer number to the list if
-    " it is already associated with another tab
+    " The first time we add a tab, Vim uses the current buffer as its starting
+    " page even though we are about to edit a new page, and another BufEnter
+    " for the new page is triggered later. Use this first BufEnter to
+    " initialize the list of buffers, but don't add the buffer number to the
+    " list if it is already associated with another tab.
     "
-    " Unfortunately, this doesn't work right when the first
-    " buffer opened in the tab should be associated with it,
-    " such as when 'tab split +buffer N' is used
+    " Unfortunately, this doesn't work right when the first buffer opened in
+    " the tab should be associated with it, such as when 'tab split +buffer N'
+    " is used.
     if !exists("t:bufexp_buf_list")
         let t:bufexp_buf_list = []
 
@@ -537,6 +533,8 @@ function! s:MapKeys()
     nnoremap <script> <silent> <nowait> <buffer> u             :call <SID>ToggleShowUnlisted()<CR>
     nnoremap <script> <silent> <nowait> <buffer> v             :call <SID>SelectBuffer("split", "vr")<CR>
     nnoremap <script> <silent> <nowait> <buffer> V             :call <SID>SelectBuffer("split", "vl")<CR>
+    nnoremap <script> <silent> <nowait> <buffer> H             :call <SID>ToggleShowTerminal()<CR>
+
 
     for k in ["G", "n", "N", "L", "M", "H"]
         execute "nnoremap <buffer> <silent>" k ":keepjumps normal!" k."<CR>"
@@ -623,6 +621,7 @@ function! s:GetHelpStatus()
     let ret .= ((g:bufExplorerOnlyOneTab == 0) ? "" : " | One tab/buffer")
     let ret .= ' | '.((g:bufExplorerShowRelativePath == 0) ? "Absolute" : "Relative")
     let ret .= ' '.((g:bufExplorerSplitOutPathName == 0) ? "Full" : "Split")." path"
+    let ret .= ((g:bufExplorerShowTerminal == 0) ? "" : " | Show terminal")
 
     return ret
 endfunction
@@ -673,6 +672,49 @@ function! s:CreateHelp()
     return header
 endfunction
 
+" CalculateBufferDetails {{{2
+" Calculate `buf`-related details.
+function! s:CalculateBufferDetails(buf)
+    let buf = a:buf
+    let name = bufname(buf._bufnr)
+    let buf["hasNoName"] = empty(name)
+    if buf.hasNoName
+        let name = "[No Name]"
+    endif
+    let buf.isterminal = getbufvar(buf._bufnr, '&buftype') == 'terminal'
+    if buf.isterminal
+        let buf.fullname = name
+        let buf.isdir = 0
+    else
+        let buf.fullname = simplify(fnamemodify(name, ':p'))
+        let buf.isdir = getftype(buf.fullname) == "dir"
+    endif
+    if buf.isdir
+        " `buf.fullname` ends with a path separator; this will be
+        " removed via the first `:h` applied to `buf.fullname` (except
+        " for the root directory, where the path separator will remain).
+        let parent = fnamemodify(buf.fullname, ':h:h')
+        let buf.shortname = fnamemodify(buf.fullname, ':h:t')
+        " Special case for root directory: fnamemodify('/', ':h:t') == ''
+        if buf.shortname == ''
+            let buf.shortname = '.'
+        endif
+        " Must perform shortening (`:~`, `:.`) before `:h`.
+        let buf.homename = fnamemodify(buf.fullname, ':~:h')
+        let buf.relativename = fnamemodify(buf.fullname, ':~:.:h')
+    else
+        let parent = fnamemodify(buf.fullname, ':h')
+        let buf.shortname = fnamemodify(buf.fullname, ':t')
+        let buf.homename = fnamemodify(buf.fullname, ':~')
+        let buf.relativename = fnamemodify(buf.fullname, ':~:.')
+    endif
+    " `:p` on `parent` adds back the path separator which permits more
+    " effective shortening (`:~`, `:.`), but `:h` is required afterward
+    " to trim this separator.
+    let buf.path = fnamemodify(parent, ':p:~:h')
+    let buf.relativepath = fnamemodify(parent, ':p:~:.:h')
+endfunction
+
 " GetBufferInfo {{{2
 function! s:GetBufferInfo(bufnr)
     redir => bufoutput
@@ -683,56 +725,22 @@ function! s:GetBufferInfo(bufnr)
     redir END
 
     if a:bufnr > 0
-        " Since we are only interested in this specified buffer
-        " remove the other buffers listed
+        " Since we are only interested in this specified buffer remove the
+        " other buffers listed.
         let bufoutput = substitute(bufoutput."\n", '^.*\n\(\s*'.a:bufnr.'\>.\{-}\)\n.*', '\1', '')
     endif
 
-    let [all, allwidths, listedwidths] = [[], {}, {}]
-
-    for n in keys(s:types)
-        let allwidths[n] = []
-        let listedwidths[n] = []
-    endfor
+    let all = {}
 
     " Loop over each line in the buffer.
-    for buf in split(bufoutput, '\n')
-        let bits = split(buf, '"')
+    for line in split(bufoutput, '\n')
+        let bits = split(line, '"')
 
         " Use first and last components after the split on '"', in case a
         " filename with an embedded '"' is present.
-        let b = {"attributes": bits[0], "line": substitute(bits[-1], '\s*', '', '')}
-
-        let name = bufname(str2nr(b.attributes))
-        let b["hasNoName"] = empty(name)
-        if b.hasNoName
-            let name = "[No Name]"
-        endif
-
-        for [key, val] in items(s:types)
-            let b[key] = fnamemodify(name, val)
-        endfor
-
-        if getftype(b.fullname) == "dir" && g:bufExplorerShowDirectories == 1
-            let b.shortname = "<DIRECTORY>"
-        endif
-
-        call add(all, b)
-
-        for n in keys(s:types)
-            call add(allwidths[n], s:StringWidth(b[n]))
-
-            if b.attributes !~ "u"
-                call add(listedwidths[n], s:StringWidth(b[n]))
-            endif
-        endfor
-    endfor
-
-    let [s:allpads, s:listedpads] = [{}, {}]
-
-    for n in keys(s:types)
-        let s:allpads[n] = repeat(' ', max(allwidths[n]))
-        let s:listedpads[n] = repeat(' ', max(listedwidths[n]))
+        let buf = {"attributes": bits[0], "line": substitute(bits[-1], '\s*', '', '')}
+        let buf._bufnr = str2nr(buf.attributes)
+        let all[buf._bufnr] = buf
     endfor
 
     return all
@@ -740,17 +748,26 @@ endfunction
 
 " BuildBufferList {{{2
 function! s:BuildBufferList()
-    let lines = []
+    let table = []
 
     " Loop through every buffer.
-    for buf in s:raw_buffer_listing
+    for buf in values(s:raw_buffer_listing)
+        " `buf.attributes` must exist, but we defer the expensive work of
+        " calculating other buffer details (e.g., `buf.fullname`) until we know
+        " the user wants to view this buffer.
+
         " Skip unlisted buffers if we are not to show them.
         if !g:bufExplorerShowUnlisted && buf.attributes =~ "u"
             " Skip unlisted buffers if we are not to show them.
             continue
         endif
 
-        " Skip "No Name" buffers if we are not to show them.
+        " Ensure buffer details are computed for this buffer.
+        if !has_key(buf, 'fullname')
+            call s:CalculateBufferDetails(buf)
+        endif
+
+        " Skip 'No Name' buffers if we are not to show them.
         if g:bufExplorerShowNoName == 0 && buf.hasNoName
             continue
         endif
@@ -760,38 +777,70 @@ function! s:BuildBufferList()
             continue
         endif
 
-        let line = buf.attributes." "
+        " Skip terminal buffers if we are not to show them.
+        if !g:bufExplorerShowTerminal && buf.isterminal
+            continue
+        endif
+
+        " Skip directory buffers if we are not to show them.
+        if !g:bufExplorerShowDirectories && buf.isdir
+            continue
+        endif
+
+        let row = [buf.attributes]
 
         if exists("g:loaded_webdevicons")
-            let line .= WebDevIconsGetFileTypeSymbol(buf.shortname)
-            let line .= " "
+            let row += [WebDevIconsGetFileTypeSymbol(buf.fullname, buf.isdir)]
         endif
 
         " Are we to split the path and file name?
         if g:bufExplorerSplitOutPathName
             let type = (g:bufExplorerShowRelativePath) ? "relativepath" : "path"
-            let path = substitute( buf[type], $HOME."\\>", "~", "" )
-            let pad  = (g:bufExplorerShowUnlisted) ? s:allpads.shortname : s:listedpads.shortname
-            let line .= buf.shortname." ".strpart(pad.path, s:StringWidth(buf.shortname))
+            let row += [buf.shortname, buf[type]]
         else
-            let type = (g:bufExplorerShowRelativePath) ? "relativename" : "fullname"
-            let path = substitute( buf[type], $HOME."\\>", "~", "" )
-            let line .= path
+            let type = (g:bufExplorerShowRelativePath) ? "relativename" : "homename"
+            let row += [buf[type]]
         endif
-
-        let pads = (g:bufExplorerShowUnlisted) ? s:allpads : s:listedpads
-
-        if !empty(pads[type])
-            let line .= strpart(pads[type], s:StringWidth(path))." "
-        endif
-
-        let line .= buf.line
-
-        call add(lines, line)
+        let row += [buf.line]
+        call add(table, row)
     endfor
 
+    let lines = s:MakeLines(table)
     call setline(s:firstBufferLine, lines)
     call s:SortListing()
+endfunction
+
+" MakeLines {{{2
+function! s:MakeLines(table)
+    if len(a:table) == 0
+        return []
+    endif
+    let lines = []
+    " To avoid trailing whitespace, do not pad the final column.
+    let numColumnsToPad = len(a:table[0]) - 1
+    let maxWidths = repeat([0], numColumnsToPad)
+    for row in a:table
+        let i = 0
+        while i < numColumnsToPad
+            let maxWidths[i] = max([maxWidths[i], s:StringWidth(row[i])])
+            let i = i + 1
+        endwhile
+    endfor
+
+    let pads = []
+    for w in maxWidths
+        call add(pads, repeat(' ', w))
+    endfor
+
+    for row in a:table
+        let i = 0
+        while i < numColumnsToPad
+            let row[i] .= strpart(pads[i], s:StringWidth(row[i]))
+            let i = i + 1
+        endwhile
+        call add(lines, join(row, ' '))
+    endfor
+    return lines
 endfunction
 
 " SelectBuffer {{{2
@@ -841,96 +890,49 @@ function! s:SelectBuffer(...)
     endif
 
     if bufexists(_bufNbr)
-        if bufnr("#") == _bufNbr && !exists("g:bufExplorerChgWin")
-            return s:Close()
-        endif
-
-        " Get the tab number where this bufer is located in.
+        " Get the tab number where this buffer is located in.
         let tabNbr = s:GetTabNbr(_bufNbr)
-        " Are we supposed to open the selected buffer in a tab?
-        if (a:0 == 1) && (a:1 == "tab")
-
-            " Restore [BufExplorer] buffer.
-            execute "silent buffer!".s:originBuffer
-
-            " Was the tab found?
-            if tabNbr == 0
-                " _bufNbr is not opened in any tabs. Open a new tab with the
-                " selected buffer in it.
-                if v:version > 704 || ( v:version == 704 && has('patch2237') )
-                    " new syntax for last tab as of 7.4.2237
-                    execute "$tab split +buffer" . _bufNbr
-                else
-                    execute "999tab split +buffer" . _bufNbr
-                endif
-
-                " Workaround for the issue mentioned in UpdateTabBufData.
-                call s:UpdateTabBufData(_bufNbr)
-            else
-                " The _bufNbr is already opened in a tab, go to that tab.
-                execute tabNbr . "tabnext"
-
-                " Focus window.
-                execute s:GetWinNbr(tabNbr, _bufNbr) . "wincmd w"
-            endif
-            " Are we supposed to open the selected buffer in a split?
-        elseif (a:0 == 2) && (a:1 == "split")
-            if g:bufExplorerFindActive
-                call s:Close()
-            endif
-            " Was the tab found?
-            if tabNbr != 0
-                " Yes, the buffer is located in a tab. Go to that tab instead of
-                " opening split
-                execute tabNbr . "tabnext"
-            else
-                "Nope, the buffer is not in a tab, open it accordingly
-                let _bufName = expand("#"._bufNbr.":p")
-                if (a:2 == "vl")
-                    execute _bufName ?
-                                \ "vert topleft sb ".escape(_bufName, " ") :
-                                \ "vert topleft sb "._bufNbr
-                elseif (a:2 == "vr")
-                    execute _bufName ?
-                                \ "vert belowright sb ".escape(_bufName, " ") :
-                                \ "vert belowright sb "._bufNbr
-                elseif (a:2 == "st")
-                    execute _bufName ?
-                                \ "topleft sb ".escape(_bufName, " ") :
-                                \ "topleft sb "._bufNbr
-                else " = sb
-                    execute _bufName ?
-                                \ "belowright sb ".escape(_bufName, " ") :
-                                \ "belowright sb "._bufNbr
-                endif
-            endif
-
-            " Switch to selected buffer
-            execute "keepalt silent b!" _bufNbr
-            " Default, open in current window
-        else
-            " Are we suppose to move to the tab where the active buffer is?
-            if exists("g:bufExplorerChgWin")
-                execute g:bufExplorerChgWin."wincmd w"
-            elseif bufloaded(_bufNbr) && g:bufExplorerFindActive
-                if g:bufExplorerFindActive
-                    call s:Close()
-                endif
-
-                " Was the tab found?
-                if tabNbr != 0
-                    " Yes, the buffer is located in a tab. Go to that tab number.
-                    execute tabNbr . "tabnext"
-                else
-                    "Nope, the buffer is not in a tab. Simply switch to that
-                    "buffer.
-                    let _bufName = expand("#"._bufNbr.":p")
-                    execute _bufName ? "drop ".escape(_bufName, " ") : "buffer "._bufNbr
-                endif
-            endif
-
-            " Switch to the selected buffer.
+        if exists("g:bufExplorerChgWin") && g:bufExplorerChgWin <=winnr("$")
+            execute g:bufExplorerChgWin."wincmd w"
             execute "keepjumps keepalt silent b!" _bufNbr
+
+        " Are we supposed to open the selected buffer in a tab?
+        elseif (a:0 == 1) && (a:1 == "tab")
+            call s:Close()
+
+            " Open a new tab with the selected buffer in it.
+            if v:version > 704 || ( v:version == 704 && has('patch2237') )
+                " new syntax for last tab as of 7.4.2237
+                execute "$tab split +buffer" . _bufNbr
+            else
+                execute "999tab split +buffer" . _bufNbr
+            endif
+
+            " Workaround for the issue mentioned in UpdateTabBufData.
+            call s:UpdateTabBufData(_bufNbr)
+        " Are we supposed to open the selected buffer in a split?
+        elseif (a:0 == 2) && (a:1 == "split")
+            call s:Close()
+            if (a:2 == "vl")
+                execute "vert topleft sb "._bufNbr
+            elseif (a:2 == "vr")
+                execute "vert belowright sb "._bufNbr
+            elseif (a:2 == "st")
+                execute "topleft sb "._bufNbr
+            else " = sb
+                execute "belowright sb "._bufNbr
+            endif
+        else
+            " Request to open in current (BufExplorer) window.
+            if g:bufExplorerFindActive && tabNbr > 0
+                " Close BufExplorer window and switch to existing tab/window.
+                call s:Close()
+                execute tabNbr . "tabnext"
+                execute bufwinnr(_bufNbr) . "wincmd w"
+            else
+                " Use BufExplorer window for the buffer.
+                execute "keepjumps keepalt silent b!" _bufNbr
+            endif
         endif
 
         " Make the buffer 'listed' again.
@@ -976,7 +978,7 @@ function! s:RemoveBuffer(mode)
     let _bufNbr = str2nr(getline('.'))
 
     if getbufvar(_bufNbr, '&modified') == 1
-        " Calling confirm() requires Vim built with dialog option
+        " Calling confirm() requires Vim built with dialog option.
         if !has("dialog_con") && !has("dialog_gui")
             call s:Error("Sorry, no write since last change for buffer "._bufNbr.", unable to delete")
             return
@@ -1025,29 +1027,29 @@ function! s:DeleteBuffer(buf, mode)
         setlocal nomodifiable
 
         " Delete the buffer from the raw buffer list.
-        call filter(s:raw_buffer_listing, 'v:val.attributes !~ " '.a:buf.' "')
+        unlet s:raw_buffer_listing[a:buf]
     catch
         call s:Error(v:exception)
     endtry
 endfunction
 
 " ListedAndCurrentTab {{{2
-" Returns whether the specified buffer is both listed and associated
-" with the current tab
+" Returns whether the specified buffer is both listed and associated with the
+" current tab.
 function! s:ListedAndCurrentTab(buf)
     return buflisted(a:buf) && s:IsInCurrentTab(a:buf)
 endfunction
 
 " Close {{{2
 function! s:Close()
-    " Get only the listed buffers associated with the current tab
+    " Get only the listed buffers associated with the current tab.
     let listed = filter(copy(s:MRUList), "s:ListedAndCurrentTab(v:val)")
     if len(listed) == 0
         let listed = filter(range(1, bufnr('$')), "s:ListedAndCurrentTab(v:val)")
     endif
 
     " If we needed to split the main window, close the split one.
-    if s:didSplit == 1 && bufwinnr(s:originBuffer) != -1
+    if s:didSplit
         execute "wincmd c"
     endif
 
@@ -1066,6 +1068,13 @@ function! s:Close()
 
     " Clear any messages.
     echo
+endfunction
+
+" ToggleShowTerminal {{{2
+function! s:ToggleShowTerminal()
+    let g:bufExplorerShowTerminal = !g:bufExplorerShowTerminal
+    call s:RebuildBufferList()
+    call s:UpdateHelpStatus()
 endfunction
 
 " ToggleSplitOutPathName {{{2
@@ -1139,9 +1148,70 @@ function! s:UpdateHelpStatus()
     setlocal nomodifiable
 endfunction
 
-" MRUCmp {{{2
-function! s:MRUCmp(line1, line2)
-    return index(s:MRUList, str2nr(a:line1)) - index(s:MRUList, str2nr(a:line2))
+" Key_number {{{2
+function! s:Key_number(line)
+    let _bufnr = str2nr(a:line)
+    let key = [printf('%9d', _bufnr)]
+    return key
+endfunction
+
+" Key_name {{{2
+function! s:Key_name(line)
+    let _bufnr = str2nr(a:line)
+    let buf = s:raw_buffer_listing[_bufnr]
+    let key = [buf.shortname, buf.fullname]
+    return key
+endfunction
+
+" Key_fullpath {{{2
+function! s:Key_fullpath(line)
+    let _bufnr = str2nr(a:line)
+    let buf = s:raw_buffer_listing[_bufnr]
+    let key = [buf.fullname]
+    return key
+endfunction
+
+" Key_extension {{{2
+function! s:Key_extension(line)
+    let _bufnr = str2nr(a:line)
+    let buf = s:raw_buffer_listing[_bufnr]
+    let extension = fnamemodify(buf.shortname, ':e')
+    let key = [extension, buf.shortname, buf.fullname]
+    return key
+endfunction
+
+" Key_mru {{{2
+function! s:Key_mru(line)
+    let _bufnr = str2nr(a:line)
+    let buf = s:raw_buffer_listing[_bufnr]
+    let pos = index(s:MRUList, _bufnr)
+    if pos < 0
+        let pos = 0
+    endif
+    return [printf('%9d', pos), buf.fullname]
+endfunction
+
+" SortByKeyFunc {{{2
+function! s:SortByKeyFunc(keyFunc)
+    let keyedLines = []
+    for line in getline(s:firstBufferLine, "$")
+        let key = eval(a:keyFunc . '(line)')
+        call add(keyedLines, join(key + [line], "\1"))
+    endfor
+
+    " Ignore case when sorting by passing `1`:
+    call sort(keyedLines, 1)
+
+    if g:bufExplorerReverseSort
+        call reverse(keyedLines)
+    endif
+
+    let lines = []
+    for keyedLine in keyedLines
+        call add(lines, split(keyedLine, "\1")[-1])
+    endfor
+
+    call setline(s:firstBufferLine, lines)
 endfunction
 
 " SortReverse {{{2
@@ -1178,50 +1248,7 @@ endfunction
 
 " SortListing {{{2
 function! s:SortListing()
-    let sort = s:firstBufferLine.",$sort".((g:bufExplorerReverseSort == 1) ? "!": "")
-
-    if g:bufExplorerSortBy == "number"
-        " Easiest case.
-        execute sort 'n'
-    elseif g:bufExplorerSortBy == "name"
-        " Sort by full path first
-        execute sort 'ir /\zs\f\+\ze\s\+line/'
-
-        if g:bufExplorerSplitOutPathName
-            execute sort 'ir /\d.\{7}\zs\f\+\ze/'
-        else
-            execute sort 'ir /\zs[^\/\\]\+\ze\s*line/'
-        endif
-    elseif g:bufExplorerSortBy == "fullpath"
-        if g:bufExplorerSplitOutPathName
-            " Sort twice - first on the file name then on the path.
-            execute sort 'ir /\d.\{7}\zs\f\+\ze/'
-        endif
-
-        execute sort 'ir /\zs\f\+\ze\s\+line/'
-    elseif g:bufExplorerSortBy == "extension"
-        " Sort by full path...
-        execute sort 'ir /\zs\f\+\ze\s\+line/'
-
-        " Sort by name...
-        if g:bufExplorerSplitOutPathName
-            " Sort twice - first on the file name then on the path.
-            execute sort 'ir /\d.\{7}\zs\f\+\ze/'
-        endif
-
-        " Sort by extension.
-        execute sort 'ir /\.\zs\w\+\ze\s/'
-    elseif g:bufExplorerSortBy == "mru"
-        let l = getline(s:firstBufferLine, "$")
-
-        call sort(l, "<SID>MRUCmp")
-
-        if g:bufExplorerReverseSort
-            call reverse(l)
-        endif
-
-        call setline(s:firstBufferLine, l)
-    endif
+    call s:SortByKeyFunc("<SID>Key_" . g:bufExplorerSortBy)
 endfunction
 
 " MRUListShow {{{2
@@ -1247,6 +1274,10 @@ endfunction
 
 " GetTabNbr {{{2
 function! s:GetTabNbr(bufNbr)
+    " Prefer current tab.
+    if bufwinnr(a:bufNbr) > 0
+        return tabpagenr()
+    endif
     " Searching buffer bufno, in tabs.
     for i in range(tabpagenr("$"))
         if index(tabpagebuflist(i + 1), a:bufNbr) != -1
@@ -1356,6 +1387,7 @@ call s:Set("g:bufExplorerSplitOutPathName", 1)          " Split out path and fil
 call s:Set("g:bufExplorerSplitRight", &splitright)      " Should vertical splits be on the right or left of current window?
 call s:Set("g:bufExplorerSplitVertSize", 0)             " Height for a vertical split. If <=0, default Vim size is used.
 call s:Set("g:bufExplorerSplitHorzSize", 0)             " Height for a horizontal split. If <=0, default Vim size is used.
+call s:Set("g:bufExplorerShowTerminal", 1)              " Show terminal buffers?
 
 " Default key mapping {{{2
 if !hasmapto('BufExplorer') && g:bufExplorerDisableDefaultKeyMapping == 0

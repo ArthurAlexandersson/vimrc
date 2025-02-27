@@ -115,7 +115,7 @@ let g:multi_cursor_quit_key            = '<Esc>'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => surround.vim config
-" Annotate strings with gettext 
+" Annotate strings with gettext
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 vmap Si S(i_<esc>f)
 au FileType mako vmap Si S"i${ _(<esc>2f"a) }<esc>
@@ -157,21 +157,32 @@ nnoremap <silent> <leader>z :Goyo<cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Ale (syntax checker and linter)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set the linter and fixer for C++
+" Enable ALE
+let g:ale_enabled = 1
+
 let g:ale_linters = {
-\   'javascript': ['eslint'],
-\   'python': ['flake8'],
-\   'go': ['go', 'golint', 'errcheck']
+\   'cpp': ['uncrustify'],
+\   'c': ['uncrustify'],
 \}
 
-nmap <silent> <leader>a <Plug>(ale_next_wrap)
+let g:ale_fixers = {
+\   'cpp': ['uncrustify'],
+\   'c': ['uncrustify'],
+\}
 
-" Disabling highlighting
-let g:ale_set_highlights = 0
+let g:ale_cpp_uncrustify_executable = '/usr/bin/uncrustify'
+let g:ale_c_uncrustify_executable = '/usr/bin/uncrustify'
+let g:ale_c_uncrustify_options = '-c /home/arthur/Desktop/cfs/cfs_code_style.cfg'
+let g:ale_cpp_uncrustify_options = '-c /home/arthur/Desktop/cfs/cfs_code_style.cfg'
 
-" Only run linting when saving the file
+
+" Enable fixing on save
+let g:ale_fix_on_save = 1
+
+" Run linting only on save to avoid conflicts
 let g:ale_lint_on_text_changed = 'never'
-let g:ale_lint_on_enter = 0
-let g:ale_virtualtext_cursor = 'disabled'
+let g:ale_lint_on_save = 1
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -182,7 +193,6 @@ nnoremap <silent> <leader>d :GitGutterToggle<cr>
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => EditorConfig (project-specific EditorConfig rule)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 
