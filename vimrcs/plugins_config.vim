@@ -173,8 +173,8 @@ let g:ale_fixers = {
 
 let g:ale_cpp_uncrustify_executable = '/usr/bin/uncrustify'
 let g:ale_c_uncrustify_executable = '/usr/bin/uncrustify'
-let g:ale_c_uncrustify_options = '-c /home/arthur/Desktop/cfs/cfs_code_style.cfg'
-let g:ale_cpp_uncrustify_options = '-c /home/arthur/Desktop/cfs/cfs_code_style.cfg'
+let g:ale_c_uncrustify_options = '-c /home/arthur/cfs_code_style.cfg'
+let g:ale_cpp_uncrustify_options = '-c /home/arthur/cfs_code_style.cfg'
 
 
 " Enable fixing on save
