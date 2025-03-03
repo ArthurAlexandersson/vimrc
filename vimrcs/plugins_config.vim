@@ -204,7 +204,3 @@ let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 nnoremap <leader>v :.GBrowse!<CR>
 xnoremap <leader>v :GBrowse!<CR>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => PeepOpen
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-

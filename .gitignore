@@ -20,7 +20,6 @@ vimrcs/VIM
 vimrcs/Visual
 vimrcs/bufExplorer
 vimrcs/output.cpp
-vimrcs/test.cpp
 vimrcs/vimgrep
 temp_dirs/undodir/*
 sources_non_forked/ack.vim/.netrwhist
