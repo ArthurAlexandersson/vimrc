@@ -6,16 +6,6 @@ The awesome version includes a lot of great plugins, configurations and color sc
 	git clone --depth=1 git@github.com:ArthurAlexandersson/vimrc.git ~/.vim_runtime
 	sh ~/.vim_runtime/install_awesome_vimrc.sh
 	
-### Install for multiple users
-To install for multiple users, the repository needs to be cloned to a location accessible for all the intended users.
-
-	git clone --depth=1 /git@github.com:ArthurAlexandersson/vimrc.git opt/vim_runtime
-	sh /opt/vim_runtime/install_awesome_parameterized.sh /opt/vim_runtime user0 user1 user2
-	# to install for all users with home directories, note that root will not be included
-	sh /opt/vim_runtime/install_awesome_parameterized.sh /opt/vim_runtime --all
-	
-Naturally, `/opt/vim_runtime` can be any directory, as long as all the users specified have read access.
-
 ## Fonts
 
 I recommend using [IBM Plex Mono font](https://github.com/IBM/plex) (it's an open-source and awesome font that can make your code look beautiful). The Awesome vimrc is already setup to try to use it.
@@ -25,36 +15,9 @@ Some other fonts that Awesome will try to use:
 * [Hack](http://sourcefoundry.org/hack/)
 * [Source Code Pro](https://adobe-fonts.github.io/source-code-pro/)
 
-## How to install the Basic version?
-
-The basic version is just one file and no plugins. Just copy [basic.vim](https://github.com/amix/vimrc/blob/master/vimrcs/basic.vim) and paste it into your vimrc.
-
-The basic version is useful to install on remote servers where you don't need many plugins, and you don't do many edits.
-
-	git clone --depth=1 https://github.com/amix/vimrc.git ~/.vim_runtime
-	sh ~/.vim_runtime/install_basic_vimrc.sh
-
-
-## How to install on Windows?
-
-Use [gitforwindows](http://gitforwindows.org/) to checkout the repository and run the installation instructions above. No special instructions needed ;-)
-
-
 ## How to install on Linux
 
 If you have vim aliased as `vi` instead of `vim`, make sure to either alias it: `alias vi=vim`. Otherwise, `apt-get install vim`
-
-
-## How to update to latest version?
-
-Just do a git rebase!
-
-
-    cd ~/.vim_runtime
-    git reset --hard
-    git clean -d --force
-    git pull --rebase
-    python update_plugins.py  # use python3 if python is unavailable
 
 ## Some screenshots
 
@@ -73,7 +36,7 @@ Distraction free mode using [goyo.vim](https://github.com/junegunn/goyo.vim) and
 
 I recommend reading the docs of these plugins to understand them better. Each plugin provides a much better Vim experience!
 
-* [ack.vim](https://github.com/mileszs/ack.vim): Vim plugin for `the_silver_searcher` (ag) or ack -- a wicked fast grep
+* [ack.vim](https://github.com/mileszs/ack.vim): Vim plugin for `the_silver_searcher` (ag) or ack -- a wicked fast grep, requires ack for linux
 * [bufexplorer.zip](https://github.com/vim-scripts/bufexplorer.zip): Quickly and easily switch between buffers. This plugin can be opened with `<leader+o>`
 * [ctrlp.vim](https://github.com/ctrlpvim/ctrlp.vim): Fuzzy file, buffer, mru and tag finder. It's mapped to `<Ctrl+F>`
 * [goyo.vim](https://github.com/junegunn/goyo.vim) and [vim-zenroom2](https://github.com/amix/vim-zenroom2): 
