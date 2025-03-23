@@ -168,18 +168,25 @@ let g:ale_enabled = 1
 let g:ale_linters = {
 \   'cpp': ['uncrustify'],
 \   'c': ['uncrustify'],
+\   'yaml': ['yamllint'],
+\   'java': ['checkstyle'],
 \}
 
 let g:ale_fixers = {
 \   'cpp': ['uncrustify'],
 \   'c': ['uncrustify'],
+\   'yaml': ['yamlfmt'],
+\   'java': ['clang-format'],
 \}
 
 let g:ale_cpp_uncrustify_executable = '/usr/bin/uncrustify'
 let g:ale_c_uncrustify_executable = '/usr/bin/uncrustify'
-let g:ale_c_uncrustify_options = '-c ' . expand('$HOME') . '/cfs/cfs_code_style.cfg'
-let g:ale_cpp_uncrustify_options = '-c ' . expand('$HOME') . '/cfs/cfs_code_style.cfg'
+let g:ale_c_uncrustify_options = '-c ' . expand('$HOME') . '/.vim_runtime/linters/cfs_code_style.cfg'
+let g:ale_cpp_uncrustify_options = '-c ' . expand('$HOME') . '/.vim_runtime/linters/cfs_code_style.cfg'
 
+let g:ale_yaml_yamlfmt_executable=  expand('$HOME') . '/go/bin/yamlfmt'
+let g:ale_java_clangformat_executable= 'clang-format'
+" let g:ale_java_clangformat_options = '-style="{BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 120}"'
 
 " Enable fixing on save
 let g:ale_fix_on_save = 1
@@ -230,6 +237,14 @@ if executable('clangd-18')
         \ })
 endif
 
+if executable('/home/arthur/eclipse.jdt.ls/org.eclipse.jdt.ls.product/target/repository/bin/jdtls')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'jdtls',
+        \ 'cmd': {server_info->['/home/arthur/eclipse.jdt.ls/org.eclipse.jdt.ls.product/target/repository/bin/jdtls', '-data', expand('~/.cache/jdtls-workspace')]},
+        \ 'allowlist': ['java'],
+        \ })
+endif
+
 function! s:on_lsp_buffer_enabled() abort
     setlocal omnifunc=lsp#complete
     setlocal signcolumn=yes
@@ -239,7 +254,7 @@ function! s:on_lsp_buffer_enabled() abort
     nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
     nmap <buffer> gr <plug>(lsp-references)
     nmap <buffer> gi <plug>(lsp-implementation)
-    nmap <buffer> gt <plug>(lsp-type-definition)
+    " nmap <buffer> gt <plug>(lsp-type-definition)
     nmap <buffer> <leader>rn <plug>(lsp-rename)
     nmap <buffer> [g <plug>(lsp-previous-diagnostic)
     nmap <buffer> ]g <plug>(lsp-next-diagnostic)
