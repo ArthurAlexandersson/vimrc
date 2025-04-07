@@ -88,7 +88,7 @@ set grepprg=/bin/grep\ -nH
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Nerd Tree
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:NERDTreeWinPos = "left"
+let g:NERDTreeWinPos = "right"
 let NERDTreeShowHidden=0
 let g:NERDTreeFileLines=1
 let NERDTreeIgnore = ['\.pyc$', '__pycache__']
@@ -166,32 +166,33 @@ nnoremap <silent> <leader>z :Goyo<cr>
 let g:ale_enabled = 1
 
 let g:ale_linters = {
-\   'cpp': ['uncrustify'],
-\   'c': ['uncrustify'],
-\   'yaml': ['yamllint'],
+\   'cpp': [],
+\   'c': [],
 \   'java': ['checkstyle'],
 \}
 
 let g:ale_fixers = {
 \   'cpp': ['uncrustify'],
 \   'c': ['uncrustify'],
-\   'yaml': ['yamlfmt'],
 \   'java': ['clang-format'],
 \}
 
+" c/c++ with uncrustrify
 let g:ale_cpp_uncrustify_executable = '/usr/bin/uncrustify'
 let g:ale_c_uncrustify_executable = '/usr/bin/uncrustify'
+
+" c/c++ custom configs for uncrustify
 let g:ale_c_uncrustify_options = '-c ' . expand('$HOME') . '/.vim_runtime/linters/cfs_code_style.cfg'
 let g:ale_cpp_uncrustify_options = '-c ' . expand('$HOME') . '/.vim_runtime/linters/cfs_code_style.cfg'
 
-let g:ale_yaml_yamlfmt_executable=  expand('$HOME') . '/go/bin/yamlfmt'
+" java with clang
 let g:ale_java_clangformat_executable= 'clang-format'
-" let g:ale_java_clangformat_options = '-style="{BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 120}"'
 
 " Enable fixing on save
 let g:ale_fix_on_save = 1
 
 " Run linting only on save to avoid conflicts
+let g:ale_linters_explicit = 1
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_save = 1
 
@@ -219,6 +220,7 @@ xnoremap <leader>v :GBrowse!<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => lsp-vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" python language server
 if executable('pylsp')
     " pip install python-lsp-server
     au User lsp_setup call lsp#register_server({
@@ -228,8 +230,8 @@ if executable('pylsp')
         \ })
 endif
 
+" c++ and c language server
 if executable('clangd-18')
-    " pip install python-lsp-server
     au User lsp_setup call lsp#register_server({
         \ 'name': 'clangd',
         \ 'cmd': {server_info->['clangd-18']},
@@ -237,6 +239,7 @@ if executable('clangd-18')
         \ })
 endif
 
+" java language server
 if executable('/home/arthur/eclipse.jdt.ls/org.eclipse.jdt.ls.product/target/repository/bin/jdtls')
     au User lsp_setup call lsp#register_server({
         \ 'name': 'jdtls',
@@ -244,6 +247,7 @@ if executable('/home/arthur/eclipse.jdt.ls/org.eclipse.jdt.ls.product/target/rep
         \ 'allowlist': ['java'],
         \ })
 endif
+
 
 function! s:on_lsp_buffer_enabled() abort
     setlocal omnifunc=lsp#complete
@@ -254,22 +258,44 @@ function! s:on_lsp_buffer_enabled() abort
     nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
     nmap <buffer> gr <plug>(lsp-references)
     nmap <buffer> gi <plug>(lsp-implementation)
-    " nmap <buffer> gt <plug>(lsp-type-definition)
     nmap <buffer> <leader>rn <plug>(lsp-rename)
     nmap <buffer> [g <plug>(lsp-previous-diagnostic)
     nmap <buffer> ]g <plug>(lsp-next-diagnostic)
     nmap <buffer> <C-k> <plug>(lsp-hover)
-    nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
-    nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
+    " nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
+    " nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
 
+    " Add diagnostics toggle mapping
+    nnoremap <buffer> <silent> <leader>dt :call <SID>ToggleDiagnostics()<CR>
+    let g:lsp_diagnostics_echo_cursor = 1
     let g:lsp_format_sync_timeout = 1000
     autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
-    
-    " refer to doc to add more commands
+endfunction
+
+" Diagnostics toggle function
+function! s:ToggleDiagnostics() abort
+    if get(b:, 'lsp_diagnostics_enabled', 1)
+        let b:lsp_diagnostics_enabled = 0
+        call lsp#internal#diagnostics#state#_disable_for_buffer(bufnr(''))
+        echo "LSP Diagnostics OFF (buffer)"
+    else
+        let b:lsp_diagnostics_enabled = 1
+        call lsp#internal#diagnostics#state#_enable_for_buffer(bufnr(''))
+        echo "LSP Diagnostics ON (buffer)"
+    endif
 endfunction
 
 augroup lsp_install
     au!
-    " call s:on_lsp_buffer_enabled only for languages that has the server registered.
     autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
 augroup END
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => vim-c-cpp-modern
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Highlight struct/class member variables (affects both C and C++ files)
+let g:cpp_member_highlight = 1
+" Highlight operators (affects both C and C++ files)
+let g:cpp_operator_highlight = 1

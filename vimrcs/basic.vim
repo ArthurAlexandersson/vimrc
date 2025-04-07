@@ -160,6 +160,7 @@ set encoding=utf8
 
 " Use Unix as the standard file type
 set ffs=unix,dos,mac
+set nocompatible
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -175,7 +176,7 @@ set noswapfile
 " => Text, tab and indent related
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Use spaces instead of tabs
-set expandtab
+set noexpandtab
 
 " Be smart when using tabs ;)
 set smarttab
@@ -196,6 +197,9 @@ set wrap "Wrap lines
 " => Terminal mode related
 """"""""""""""""""""""""""""""
 set termwinkey=^N
+
+" mappings 
+tnoremap <c-b> <c-\><c-n>
 
 """"""""""""""""""""""""""""""
 " => Visual mode related
