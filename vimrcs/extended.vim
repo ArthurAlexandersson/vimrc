@@ -26,10 +26,11 @@ set guioptions-=r
 set guioptions-=R
 set guioptions-=l
 set guioptions-=L
+call plug#begin('~/.vim/plugged')
 
-" Colorscheme
-set background=dark
-colorscheme peaksea
+Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+
+call plug#end()
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -129,7 +129,7 @@ au FileType mako vmap Si S"i${ _(<esc>2f"a) }<esc>
 " => lightline
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:lightline = {
-      \ 'colorscheme': 'wombat',
+      \ 'colorscheme': 'one',
       \ 'active': {
       \   'left': [ ['mode', 'paste'],
       \             ['fugitive', 'readonly', 'filename', 'modified'] ],
@@ -240,10 +240,10 @@ if executable('clangd-18')
 endif
 
 " java language server
-if executable('/home/arthur/eclipse.jdt.ls/org.eclipse.jdt.ls.product/target/repository/bin/jdtls')
+if executable(expand('$HOME') . '/.vim_runtime/language_server/eclipse.jdt.ls/org.eclipse.jdt.ls.product/target/repository/bin/jdtls')
     au User lsp_setup call lsp#register_server({
         \ 'name': 'jdtls',
-        \ 'cmd': {server_info->['/home/arthur/eclipse.jdt.ls/org.eclipse.jdt.ls.product/target/repository/bin/jdtls', '-data', expand('~/.cache/jdtls-workspace')]},
+        \ 'cmd': {server_info->[expand('$HOME') . '/.vim_runtime/language_server/eclipse.jdt.ls/org.eclipse.jdt.ls.product/target/repository/bin/jdtls', '-data', expand('~/.cache/jdtls-workspace')]},
         \ 'allowlist': ['java'],
         \ })
 endif

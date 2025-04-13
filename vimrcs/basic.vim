@@ -22,6 +22,7 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Sets how many lines of history VIM has to remember
 set history=500
+set cursorline
 
 " Enable filetype plugins
 filetype plugin on
@@ -140,12 +141,18 @@ if $COLORTERM == 'gnome-terminal'
 set t_Co=256
 endif
 
-try
-colorscheme desert
-catch
-endtry
+" Enable true color support
+" if has('termguicolors')
+"   set termguicolors
+" endif
 
-set background=dark
+set background=dark " or 'light' depending on your terminal theme
+highlight Normal ctermbg=NONE guibg=NONE
+
+highlight LineNr ctermbg=NONE guibg=NONE
+highlight SignColumn ctermbg=NONE guibg=NONE
+highlight VertSplit ctermbg=NONE guibg=NONE
+
 
 " Set extra options when running in GUI mode
 if has("gui_running")
