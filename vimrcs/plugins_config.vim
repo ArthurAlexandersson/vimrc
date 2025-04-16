@@ -290,6 +290,11 @@ augroup lsp_install
     autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
 augroup END
 
+" Diagnostic message coloring
+highlight LspErrorText guifg=#ff5f5f guibg=NONE ctermfg=Red ctermbg=NONE
+highlight LspWarningText guifg=#ffaf00 guibg=NONE ctermfg=Yellow ctermbg=NONE
+highlight LspInformationText guifg=#5fafff guibg=NONE ctermfg=Cyan ctermbg=NONE
+highlight LspHintText guifg=#5fd7af guibg=NONE ctermfg=Green ctermbg=NONE
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => vim-c-cpp-modern
