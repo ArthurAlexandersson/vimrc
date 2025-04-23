@@ -169,13 +169,23 @@ let g:ale_linters = {
 \   'cpp': [],
 \   'c': [],
 \   'java': ['checkstyle'],
+\   'python': ['flake8']
 \}
 
 let g:ale_fixers = {
 \   'cpp': ['uncrustify'],
 \   'c': ['uncrustify'],
 \   'java': ['clang-format'],
+\   'python': ['black']
 \}
+
+" python flake8
+let g:ale_python_flake8_executable = 'python3'
+let g:ale_python_flake8_use_global = 1
+let g:ale_python_flake8_options = '-m flake8'
+
+" python flake8
+let g:ale_python_black_options = '--line-length=79'
 
 " c/c++ with uncrustrify
 let g:ale_cpp_uncrustify_executable = '/usr/bin/uncrustify'
