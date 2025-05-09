@@ -1,0 +1,3 @@
+[submodule "pack/plugins/start/vim-move"]
+	path = pack/plugins/start/vim-move
+	url = git@github.com:matze/vim-move.git
